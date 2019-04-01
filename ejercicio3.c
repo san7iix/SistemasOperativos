@@ -28,6 +28,7 @@ int main(int argc, char const *argv[]) {
     wait(NULL);
     while((n=read(tuberia1[0],buff,MAX_BUFF))>0){
       buff[n] = '\0';
+      printf("[Padre][%d]Lee: %s",getpid(),buff);
     }
     getchar();
 
@@ -42,7 +43,7 @@ int main(int argc, char const *argv[]) {
       write(tuberia2[1],buff,sizeof(buff));
       fgets(buff,MAX_BUFF,archivo);
     }
-    printf("[%d]Archivo enviado por tuberia\n",getpid());
+    printf("[Hijo 2][%d]Archivo enviado por tuberia\n",getpid());
     fclose(archivo);
     close(tuberia2[1]);
   }else{
