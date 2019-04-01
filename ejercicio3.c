@@ -26,6 +26,9 @@ int main(int argc, char const *argv[]) {
     close(tuberia2[1]);
     close(tuberia2[0]);
     wait(NULL);
+    while((n=read(tuberia1[0],buff,MAX_BUFF))>0){
+      buff[n] = '\0';
+    }
     getchar();
 
   }else if(i==1){
@@ -45,13 +48,14 @@ int main(int argc, char const *argv[]) {
   }else{
     close(tuberia1[0]);
     close(tuberia2[1]);
-
     while((n=read(tuberia2[0],buff,MAX_BUFF))>0){
-      contadorVocales=0;
       buff[n] = '\0';
-      printf("[Hijo 1][%d] Lee: %s",getpid(),buff);
-      if(strchr(buff,'a'))contadorVocales++;
-      printf("%i\n",contadorVocales );
+      contadorVocales=0;
+      for (int k = 0; k < strlen(buff); k++) {
+        if(buff[k]=='a' || buff[k]=='e' || buff[k]=='i' || buff[k]=='o' || buff[k]=='u')contadorVocales++;
+      }
+      write(tuberia1[1],buff,sizeof(buff));
+      printf("[Hijo 1][%d]Numero de vocales: %i\n",getpid(),contadorVocales);
     }
 
     close(tuberia1[1]);
