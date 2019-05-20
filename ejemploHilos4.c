@@ -25,6 +25,7 @@ int main(){
         {
                 pthread_join(hilos[i], NULL);
         }
+        pthread_barrier_wait(&mybarrier);
         pthread_barrier_destroy(&mybarrier);
 }
 

@@ -30,6 +30,7 @@ int main(int argc, char const *argv[]) {
         struct info *Info;
         int i,division=t_vector/n_hilos;
         llenarVector(v);
+        pthread_cond_init(&condicion,NULL);
         for (i = 0; i < n_hilos; i++) {
                 Info = (struct info *)malloc(sizeof(struct info));
                 Info->numero_proceso = i;
@@ -41,10 +42,8 @@ int main(int argc, char const *argv[]) {
         for ( i = 0; i < n_hilos; i++) {
                 pthread_join(pid_hilo[i],NULL);
         }
-        pthread_cond_init(&condicion,NULL);
-        while(finalizar!=n_hilos)pthread_cond_wait(&condicion,&mutex);
+        //pthread_cond_wait(&condicion,&mutex);
         printf("Suma completa [%d]\n",suma_global);
-
         return 0;
 }
 
@@ -63,6 +62,7 @@ void* funcion_maneja_hilo(void *param) {
         pthread_mutex_lock(&mutex);
         suma_global+=suma;
         finalizar+=1;
+        //pthread_cond_broadcast(&condicion);
         pthread_mutex_unlock(&mutex);
         pthread_exit(0);
 }
