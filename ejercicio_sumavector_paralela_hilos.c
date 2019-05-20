@@ -8,7 +8,7 @@ void llenarVector(int *v);
 void imprimirVector(int *v);
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t condicion;
-int contador=0;
+int suma_global=0;
 typedef unsigned long int tipo_hilo;
 struct info {
         int numero_proceso;
@@ -16,9 +16,9 @@ struct info {
         int tope_max;
 };
 
-int finalizar=0,t_vector,n_hilos,n_buscado=1;
+int finalizar=0,t_vector,n_hilos;
 
-int *v;
+int suma,*v;
 
 int main(int argc, char const *argv[]) {
         printf("Cantidad de hilos\n");
@@ -43,34 +43,26 @@ int main(int argc, char const *argv[]) {
         }
         pthread_cond_init(&condicion,NULL);
         while(finalizar!=n_hilos)pthread_cond_wait(&condicion,&mutex);
-        printf("El numero de veces que se encontro [%d] es: %d\n",n_buscado,contador);
+        printf("Suma completa [%d]\n",suma_global);
 
         return 0;
 }
 
 void* funcion_maneja_hilo(void *param) {
-        int contador_local=0;
+        int suma=0;
         struct info *infoLlegada = ((struct info *)param);
         for (size_t i = infoLlegada->tope_min; i < infoLlegada->tope_max; i++) {
-          if(v[i]==n_buscado){
-            pthread_mutex_lock(&mutex);
-            contador_local++;
-            pthread_mutex_unlock(&mutex);
-          }
+                suma=suma+v[i];
         }
-        printf("Hilo nº-> %d : Topemin: %d, :Topemax %d, Concurrencias: [%d]\n", infoLlegada->numero_proceso+1, infoLlegada->tope_min, infoLlegada->tope_max,contador_local);
+        printf("Hilo nº-> %d : Topemin: %d, :Topemax %d, Suma: [%d]\n", infoLlegada->numero_proceso+1, infoLlegada->tope_min, infoLlegada->tope_max,suma);
         if(infoLlegada->numero_proceso==(n_hilos-1) && t_vector%n_hilos!=0){
           for (size_t i = t_vector-1; i >=infoLlegada->tope_max; i--) {
-            if(v[i]==n_buscado){
-              pthread_mutex_lock(&mutex);
-              contador_local++;
-              pthread_mutex_unlock(&mutex);
-            }
+                  suma=suma+v[i];
           }
         }
         pthread_mutex_lock(&mutex);
+        suma_global+=suma;
         finalizar+=1;
-        contador+=contador_local;
         pthread_mutex_unlock(&mutex);
         pthread_exit(0);
 }
