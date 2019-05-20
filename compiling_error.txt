@@ -1,4 +1,0 @@
-/tmp/ccW2TwU7.o: En la función `main':
-ejercicio_hilo_1.c:(.text+0x8b): referencia a `pthread_create' sin definir
-ejercicio_hilo_1.c:(.text+0xce): referencia a `pthread_join' sin definir
-collect2: error: ld returned 1 exit status
