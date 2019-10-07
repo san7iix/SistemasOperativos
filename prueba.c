@@ -24,7 +24,7 @@ int main()
   }
   if (i == 2)
   {
-    int turno = 0;
+    int turno = 1;
     int leer = 1;
     close(fd[0][1]);
     close(fd[1][1]);
@@ -34,17 +34,19 @@ int main()
       {
         n = read(fd[1][0], buff, MAX_BUFF);
         buff[n] = '\0';
-        printf("%d Del [Hijo 2] Lee: %s", getpid(), buff);
+        printf("\n%d Del [Hijo 2] Lee: %s", getpid(), buff);
         turno = 1;
       }
       else if (turno == 1)
       {
         n = read(fd[0][0], buff, MAX_BUFF);
         buff[n] = '\0';
-        printf("%d Del [Hijo 1] Lee: %s", getpid(), buff);
+        printf("\n%d Del [Hijo 1] Lee: %s", getpid(), buff);
         turno = 0;
       }
     }
+    for (int w = 0; w < 2; w++)
+      wait(NULL);
     close(fd[0][0]);
     close(fd[1][0]);
   }
@@ -61,6 +63,8 @@ int main()
       write(fd[0][1], buff, sizeof(buff));
       fgets(buff, MAX_BUFF, archivo);
     }
+    write(fd[0][1], buff, sizeof(buff));
+    fclose(archivo);
     close(fd[0][1]);
   }
   else if (i == 1)
@@ -76,6 +80,8 @@ int main()
       write(fd[1][1], buff, sizeof(buff));
       fgets(buff, MAX_BUFF, archivo);
     }
+    write(fd[1][1], buff, sizeof(buff));
+    fclose(archivo);
     close(fd[1][1]);
   }
   return 0;
