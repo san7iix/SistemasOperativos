@@ -1,39 +1,77 @@
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#define N 5
 
-void* funcion_maneja_hilo(void *);
-typedef unsigned long int tipo_hilo;
-int turno=-1;
+#include<stdio.h>
+#include<stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+#include<wait.h>
 
-struct nodo {
-  int val;
-};
+#define size 3
 
-int main(int argc, char const *argv[]) {
-  pthread_t pid_hilo[N];
-  struct nodo *Nodo;
-  int i;
-  for (i = 0; i < N; i++) {
-    Nodo = (struct nodo *)malloc(sizeof(struct nodo));
-    Nodo->val = i;
-    pthread_create(&pid_hilo[i],NULL,funcion_maneja_hilo,(void*) Nodo);
-  }
-  turno+=1;
-  printf("Hilo principal (idthread ->[%lu])\n",pthread_self());
-  for ( i = 0; i < N; i++) {
-    pthread_join(pid_hilo[i],NULL);
-  }
-  while (turno!=(N));
-  printf("Hilo principal (idthread ->[%lu])\n",pthread_self());
-  return 0;
-}
+void manejador(int s){};
 
-void* funcion_maneja_hilo(void *param) {
-  while(turno!= ((struct nodo *)param)->val);
-  printf("Hilo param -> %d (idthread -> [%lu])\n",((struct nodo *)param)->val, pthread_self());
-  free(param);
-  turno+=1;
-  pthread_exit(0);
+int main(){
+
+    pid_t hijos[size], parent;
+    int i;
+    signal(SIGUSR1, manejador);
+    parent = getpid();
+    for(i=0;i<2;i++){
+        if(!(hijos[i]=fork())){//si es hijo del primer proceso
+            hijos[i+1]=fork();
+            break;
+        } 
+    }
+
+    /*
+    if(parent==getpid()){
+        char b[500];
+        sprintf(b,"pstree -lp %d",getpid());
+        system(b);
+        for(int j = 0;j < size+size;j++){
+            wait(NULL);
+            //printf("hijo[%d] retorno %d\n",j,WEXITSTATUS(status));   
+        }
+        printf("Padre finalizado\n");   
+    }else{
+        sleep(1);
+    }
+    */
+    //Aqui incia el ciclo(luego de creados los procesos)
+    if(parent==getpid()){
+        printf("Soy el padre, pid=[%d]\n", getpid());
+        sleep(1);
+        kill(hijos[1], SIGUSR1);
+        pause();
+        printf("Soy el padre, pid=[%d]\n", getpid());
+    }else{
+        if(parent==getppid()){
+            if (i==0) {
+                pause();
+                printf("Hijo [%d], pid=%d\n", i+1,getpid());
+                kill(hijos[1],SIGUSR1);
+                pause();
+                printf("Hijo [%d], pid=%d\n", i+1,getpid());
+                kill(getppid(), SIGUSR1);
+                
+            }else{
+                pause();
+                printf("Hijo [%d], pid=%d\n", i+1,getpid());
+                kill(hijos[2],SIGUSR1);
+                pause();
+                printf("Hijo [%d], pid=%d\n", i+1,getpid());
+                kill(hijos[0], SIGUSR1);
+            }   
+        }else{
+            if (i==0) {
+                pause();
+                printf("Hijo [%d,1], pid=%d\n", i+1,getpid());
+                kill(getppid(),SIGUSR1);  
+            }else{
+                pause();
+                printf("Hijo [%d,2], pid=%d\n", i+1,getpid());
+                kill(getppid(),SIGUSR1); 
+            }
+        }
+    }
+    return 0;
 }
