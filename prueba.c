@@ -17,7 +17,7 @@ int main()
 
   for (i = 0; i < 2; i++)
   {
-    if (!fork() == 0)
+    if (fork() == 0)
     {
       break;
     }
@@ -30,6 +30,7 @@ int main()
     close(fd[1][1]);
     while (n > 0)
     {
+      if(n<0)break;
       if (turno == 0)
       {
         n = read(fd[1][0], buff, MAX_BUFF);
@@ -45,10 +46,10 @@ int main()
         turno = 0;
       }
     }
-    for (int w = 0; w < 2; w++)
-      wait(NULL);
     close(fd[0][0]);
     close(fd[1][0]);
+    for (int w = 0; w < 2; w++)
+      wait(NULL);
   }
   else if (i == 0)
   {
