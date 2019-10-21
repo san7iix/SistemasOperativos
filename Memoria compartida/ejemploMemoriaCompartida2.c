@@ -7,9 +7,9 @@
 
 unsigned int sizeof_dm(int rows, int col, size_t sizeElement){
 
-size_t size = rows * sizeof(double *);
-size += (col*rows*sizeElement);
-return size;
+    size_t size = rows * sizeof(double *);
+    size += (col*rows*sizeElement);
+    return size;
 
 }
 
